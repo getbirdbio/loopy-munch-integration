@@ -1,0 +1,129 @@
+# Loopy-Munch Integration - Git Ignore
+# Protect sensitive API credentials and tokens
+
+# Sensitive credential files (REAL credentials only)
+munch_tokens.json
+production.env
+*.env
+.env*
+
+# Allow template files
+!*.template
+!*_template*
+
+# API Keys and secrets (additional protection for non-template files)
+*secrets.json
+*credentials.json
+*keys.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs and temporary files
+*.log
+*.tmp
+temp/
+tmp/
+
+# Backup files
+*_BACKUP_*
+*.bak
+*.backup
+
+# ngrok
+ngrok
+ngrok.exe
+
+# Testing and development
+test_*
+debug_*
+*_test.py
+*_debug.py
+
+# Runtime and process files
+*.pid
+*.sock
+
+# Old development files (clean repository)
+analyze_*
+check_*
+complete_*
+configure_*
+demo_*
+discover_*
+explore_*
+find_*
+fixed_*
+fully_*
+get_*
+investigate_*
+loopy_campaign_data.json
+loopy_investigation_plan.md
+loopy_monitor.py
+loopy_official_analysis.md
+loopy_working_config.json
+make_*
+munch_login_*
+munch_queue_*
+new_customer_*
+pos_integration_config.json
+quick_*
+simple_*
+simplified_*
+webhook_*
+FINAL_*
+INTEGRATION_*
+REAL_*
+URGENT_*
+MUNCH_*
+LOOPY_*
+MAKE_*
+PRODUCTION_*
+archive/
+blueprint*.json
+frida-server*
+*.service 
