@@ -1,6 +1,6 @@
 # 🏪 Loopy-Munch POS Integration
 
-[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://github.com/your-username/loopy-munch-integration)
+[![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)](https://github.com/getbirdbio/loopy-munch-integration)
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -41,7 +41,7 @@ This integration automatically processes loyalty card scans from Loopy Loyalty a
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/loopy-munch-integration.git
+   git clone https://github.com/getbirdbio/loopy-munch-integration.git
    cd loopy-munch-integration
    ```
 
@@ -177,7 +177,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 For support and questions:
 - 📧 **Email:** your-email@domain.com
 - 📱 **Phone:** +27-XXX-XXX-XXX
-- 🐛 **Issues:** [GitHub Issues](https://github.com/your-username/loopy-munch-integration/issues)
+- 🐛 **Issues:** [GitHub Issues](https://github.com/getbirdbio/loopy-munch-integration/issues)
 
 ## 🎉 Acknowledgments
 
@@ -187,4 +187,4 @@ For support and questions:
 
 ---
 
-**Made with ☕ for automated coffee redemptions** 
+**Made with ☕ for automated coffee redemptions**
