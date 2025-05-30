@@ -1,0 +1,12 @@
+version: "2"
+authtoken: YOUR_NGROK_AUTH_TOKEN
+
+tunnels:
+  loopy-munch:
+    proto: http
+    addr: 5004
+    subdomain: loopy-munch-dayne  # This will be fixed!
+    # URL will be: https://loopy-munch-dayne.ngrok.app
+
+# To use this config:
+# ngrok start loopy-munch 
