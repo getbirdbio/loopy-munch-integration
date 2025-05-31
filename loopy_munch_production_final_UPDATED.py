@@ -757,6 +757,109 @@ def loopy_enrollment_webhook():
             "details": str(e)
         }), 500
 
+@app.route('/webhook/loopy/rewards', methods=['POST'])
+def loopy_rewards_webhook():
+    """Handle Loopy rewards webhooks - triggers when customer earns rewards"""
+    
+    logger.info("=" * 60)
+    logger.info("REWARDS WEBHOOK RECEIVED")
+    logger.info(f"Headers: {dict(request.headers)}")
+    logger.info(f"Raw Data: {request.get_data(as_text=True)}")
+    logger.info("=" * 60)
+    
+    if not integration_service:
+        return jsonify({"error": "Service not configured"}), 503
+    
+    try:
+        # Extract customer/card data from webhook
+        customer_data = None
+        loyalty_code = None
+        
+        # Check URL parameters
+        loyalty_code = request.args.get('pid') or request.args.get('cardId') or request.args.get('loyalty_code')
+        
+        # Check form data
+        if not loyalty_code:
+            loyalty_code = request.form.get('pid') or request.form.get('cardId') or request.form.get('loyalty_code')
+        
+        # Check JSON payload
+        if not loyalty_code:
+            try:
+                data = request.get_json()
+                if data and isinstance(data, dict):
+                    # Extract loyalty code
+                    loyalty_code = (
+                        data.get('pid') or 
+                        data.get('cardId') or 
+                        data.get('loyalty_code') or
+                        data.get('customer_code')
+                    )
+                    
+                    # Check nested card object
+                    if not loyalty_code and 'card' in data:
+                        card = data.get('card', {})
+                        if isinstance(card, dict):
+                            loyalty_code = card.get('id') or card.get('pid')
+                    
+                    # Store full customer data for processing
+                    customer_data = data
+                    
+            except Exception as e:
+                logger.warning(f"JSON parsing failed: {e}")
+        
+        # Extract from raw text if needed
+        if not loyalty_code:
+            try:
+                raw_text = request.get_data(as_text=True)
+                import re
+                pid_patterns = re.findall(r'[A-Za-z0-9]{10,20}', raw_text)
+                if pid_patterns:
+                    loyalty_code = pid_patterns[0]
+            except Exception as e:
+                logger.warning(f"Pattern matching failed: {e}")
+        
+        logger.info(f"🎯 Extracted loyalty code: {loyalty_code}")
+        
+        if not loyalty_code:
+            logger.error("❌ NO LOYALTY CODE FOUND - Make.com configuration issue!")
+            return jsonify({
+                "error": "No loyalty code found in webhook",
+                "raw_data": request.get_data(as_text=True),
+                "help": "Check Make.com HTTP module configuration for rewards webhook"
+            }), 400
+        
+        logger.info(f"🎁 Processing REWARDS webhook for: {loyalty_code}")
+        
+        # Process rewards with our FIXED calculation
+        result = integration_service.process_loyalty_scan_smart(loyalty_code)
+        
+        # Add rewards webhook metadata
+        result.update({
+            "webhook_type": "rewards",
+            "webhook_processed": True,
+            "calculation_method": "FIXED - Rewards Earned - Rewards Redeemed",
+            "processed_at": datetime.now().isoformat()
+        })
+        
+        if result.get("success") and result.get("credit_applied"):
+            logger.info(f"✅ Rewards webhook processed successfully!")
+            logger.info(f"   Customer: {result.get('customer_name', 'Unknown')}")
+            logger.info(f"   Credit applied: R{result.get('credit_amount', 0)}")
+            logger.info(f"   Available rewards: {result.get('available_rewards', 0)}")
+        else:
+            logger.info(f"ℹ️  Rewards webhook processed - no new credits needed")
+            logger.info(f"   Reason: {result.get('message', 'Unknown')}")
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        logger.error(f"❌ Rewards webhook error: {e}")
+        return jsonify({
+            "error": "Rewards webhook processing failed",
+            "details": str(e),
+            "webhook_type": "rewards"
+        }), 500
+
 if __name__ == '__main__':
     port = int(os.getenv('SERVICE_PORT', '5004'))
     
@@ -772,7 +875,8 @@ if __name__ == '__main__':
     print(f"🌐 Service URL: http://localhost:{port}")
     print(f"💚 Health Check: GET http://localhost:{port}/health")
     print(f"📱 Scan Endpoint: POST http://localhost:{port}/scan")
-    print(f"🔗 Webhook: POST http://localhost:{port}/webhook/loopy/enrolled")
+    print(f"🔗 Enrollment Webhook: POST http://localhost:{port}/webhook/loopy/enrolled")
+    print(f"🎁 Rewards Webhook: POST http://localhost:{port}/webhook/loopy/rewards")
     print()
     print("🎯 Smart Features:")
     print("  • No duplicate R40 credits for same reward level")
