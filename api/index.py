@@ -1,23 +1,25 @@
-from flask import Flask, jsonify
+import json
 from datetime import datetime
+from http.server import BaseHTTPRequestHandler
 
-app = Flask(__name__)
-
-@app.route('/')
-def index():
-    return jsonify({
-        'status': 'healthy',
-        'service': 'loopy_munch_integration',
-        'version': '1.0.0',
-        'timestamp': datetime.now().isoformat(),
-        'message': 'Vercel deployment successful!',
-        'endpoints': {
-            'health': '/health',
-            'webhook_rewards': '/webhook/loopy/rewards',
-            'webhook_enrollment': '/webhook/loopy/enrolled'
+class handler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        
+        response = {
+            'status': 'healthy',
+            'service': 'loopy_munch_integration',
+            'version': '1.0.0',
+            'timestamp': datetime.now().isoformat(),
+            'message': 'Vercel deployment successful!',
+            'endpoints': {
+                'health': '/api/health',
+                'webhook_rewards': '/api/webhook',
+                'root': '/api/index'
+            }
         }
-    })
-
-# Vercel expects this
-def handler(request):
-    return app(request.environ, lambda status, headers: None) 
+        
+        self.wfile.write(json.dumps(response).encode())
+        return 

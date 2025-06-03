@@ -1,5 +1,0 @@
-{
-  "bearer_token": "YOUR_MUNCH_BEARER_TOKEN_HERE",
-  "organisation_id": "YOUR_MUNCH_ORGANIZATION_ID_HERE",
-  "note": "Copy this file to munch_tokens.json and fill in your real credentials"
-} 
