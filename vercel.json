@@ -1,3 +1,33 @@
 {
-  "version": 2
+  "version": 2,
+  "functions": {
+    "api/*.py": {
+      "runtime": "python3.9"
+    }
+  },
+  "routes": [
+    {
+      "src": "/health",
+      "dest": "/api/health"
+    },
+    {
+      "src": "/webhook/(.*)",
+      "dest": "/api/webhook"
+    },
+    {
+      "src": "/api/webhook/(.*)",
+      "dest": "/api/webhook"
+    },
+    {
+      "src": "/",
+      "dest": "/api/index"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    }
+  ],
+  "env": {
+    "PYTHON_VERSION": "3.9"
+  }
 } 
