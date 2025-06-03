@@ -1,15 +1,15 @@
+from datetime import datetime
 import json
 import os
-from datetime import datetime
-from http.server import BaseHTTPRequestHandler
 
-class handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header('Content-type', 'application/json')
-        self.end_headers()
-        
-        response = {
+def handler(request):
+    return {
+        'statusCode': 200,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*'
+        },
+        'body': json.dumps({
             'status': 'healthy',
             'service': 'loopy_make_integration',
             'version': '1.0.0',
@@ -20,9 +20,7 @@ class handler(BaseHTTPRequestHandler):
                 'rewards_webhook_configured': bool(os.getenv('REWARDS_WEBHOOK_URL')),
                 'campaign_configured': bool(os.getenv('CAMPAIGN_ID'))
             },
-            'mode': 'vercel_simple_handler',
+            'mode': 'vercel_function_v2',
             'message': 'Vercel deployment working!'
-        }
-        
-        self.wfile.write(json.dumps(response).encode())
-        return 
+        })
+    } 
