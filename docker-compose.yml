@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  loopy-webhook-service:
+    build: .
+    ports:
+      - "5008:5008"
+    environment:
+      - SERVICE_PORT=5008
+      - WEBHOOK_URL=${WEBHOOK_URL}
+      - REWARDS_WEBHOOK_URL=${REWARDS_WEBHOOK_URL}
+      - MUNCH_API_KEY=${MUNCH_API_KEY}
+      - MUNCH_ORG_ID=${MUNCH_ORG_ID}
+      - CAMPAIGN_ID=${CAMPAIGN_ID}
+      - STAMPS_FOR_FREE_COFFEE=12
+      - COFFEE_PRICE=40.0
+    env_file:
+      - production.env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5008/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ./logs:/app/logs
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3" 
