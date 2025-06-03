@@ -1,28 +1,28 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/*.py",
-      "use": "@vercel/python"
+  "functions": {
+    "api/health.py": {
+      "runtime": "@vercel/python"
+    },
+    "api/webhook.py": {
+      "runtime": "@vercel/python"
+    },
+    "api/index.py": {
+      "runtime": "@vercel/python"
     }
-  ],
+  },
   "routes": [
     {
       "src": "/health",
-      "dest": "/api/health.py"
+      "dest": "/api/health"
     },
     {
       "src": "/webhook/(.*)",
-      "dest": "/api/webhook.py"
+      "dest": "/api/webhook"
     },
     {
       "src": "/(.*)",
-      "dest": "/api/index.py"
+      "dest": "/api/index"
     }
-  ],
-  "functions": {
-    "api/*.py": {
-      "maxDuration": 30
-    }
-  }
+  ]
 } 
