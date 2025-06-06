@@ -14,6 +14,7 @@ CRITICAL SECURITY REQUIREMENTS:
 import os
 import requests
 import json
+import sys # Required for writing to stderr
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -27,11 +28,16 @@ class SecureMunchIntegration:
         
         self.api_key = os.getenv('MUNCH_API_KEY')
         self.org_id = os.getenv('MUNCH_ORG_ID')
-        self.payment_method_id = '0193bf43-bc83-744e-9510-bc20d2314fdb'  # Account Load
+        self.payment_method_id = os.getenv('MUNCH_PAYMENT_METHOD_ID_ACCOUNT_LOAD')
+        self.deposit_account_id = os.getenv('MUNCH_DEPOSIT_ACCOUNT_ID')
         self.base_url = 'https://api.munch.cloud/api'
         
         if not self.api_key or not self.org_id:
             raise ValueError("❌ Missing required Munch API credentials")
+        if not self.payment_method_id:
+            raise ValueError("❌ Missing MUNCH_PAYMENT_METHOD_ID_ACCOUNT_LOAD environment variable")
+        if not self.deposit_account_id:
+            raise ValueError("❌ Missing MUNCH_DEPOSIT_ACCOUNT_ID environment variable")
         
         print("🔒 Secure Munch Integration initialized")
         print(f"   Organization: {self.org_id}")
@@ -39,7 +45,9 @@ class SecureMunchIntegration:
         
     def get_headers(self):
         """Get properly configured headers for Munch API"""
-        
+        munch_employee_id = os.getenv('MUNCH_HEADERS_EMPLOYEE_ID')
+        if not munch_employee_id:
+            raise ValueError("❌ Missing MUNCH_HEADERS_EMPLOYEE_ID environment variable")
         return {
             'Authorization': f'Bearer {self.api_key}',
             'Authorization-Type': 'internal',
@@ -48,7 +56,7 @@ class SecureMunchIntegration:
             'Munch-Platform': 'cloud.munch.portal',
             'Munch-Timezone': 'Africa/Johannesburg',
             'Munch-Version': '2.20.1',
-            'Munch-Employee': '28c5e780-3707-11ec-bb31-dde416ab9f61',
+            'Munch-Employee': munch_employee_id,
             'Munch-Organisation': self.org_id
         }
     
@@ -65,11 +73,14 @@ class SecureMunchIntegration:
         print(f"🔍 Searching Munch for customer by email: {email}")
         
         try:
+            munch_retrieve_users_payload_id = os.getenv('MUNCH_RETRIEVE_USERS_PAYLOAD_ID')
+            if not munch_retrieve_users_payload_id:
+                raise ValueError("❌ Missing MUNCH_RETRIEVE_USERS_PAYLOAD_ID environment variable")
             response = requests.post(
                 f'{self.base_url}/account/retrieve-users',
                 headers=self.get_headers(),
                 json={
-                    "id": "3e92a480-5f21-11ec-b43f-dde416ab9f61",
+                    "id": munch_retrieve_users_payload_id,
                     "timezone": "Africa/Johannesburg"
                 },
                 timeout=10
@@ -233,7 +244,7 @@ class SecureMunchIntegration:
                 f'{self.base_url}/deposit/deposit',
                 headers=self.get_headers(),
                 json={
-                    "accountId": "3e92a480-5f21-11ec-b43f-dde416ab9f61",
+                    "accountId": self.deposit_account_id,
                     "amount": amount_in_cents,
                     "currency": "ZAR",
                     "description": f"Loopy loyalty reward - {loopy_card_id} - {free_coffees} free coffee(s)",
@@ -268,6 +279,14 @@ class SecureMunchIntegration:
                 
                 print(f"📋 AUDIT RECORD: {json.dumps(audit_record, indent=2)}")
                 
+                # Persistent audit logging
+                audit_log_file = os.getenv('AUDIT_LOG_PATH', 'audit_log.jsonl')
+                try:
+                    with open(audit_log_file, 'a') as f:
+                        f.write(json.dumps(audit_record) + '\n')
+                except IOError as e:
+                    print(f"Error writing to audit log {audit_log_file}: {e}", file=sys.stderr)
+
                 return {
                     'success': True,
                     'amount_deposited': f"R{amount_in_cents/100}",

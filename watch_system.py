@@ -91,6 +91,17 @@ class LiveSystemMonitor:
     
     def get_munch_stats(self):
         """Get current Munch system statistics"""
+        munch_employee_id = os.getenv('MUNCH_HEADERS_EMPLOYEE_ID')
+        munch_watch_system_organisation_id = os.getenv('MUNCH_WATCH_SYSTEM_ORGANISATION_ID')
+        munch_retrieve_users_payload_id = os.getenv('MUNCH_RETRIEVE_USERS_PAYLOAD_ID')
+
+        if not munch_employee_id:
+            return {'api_status': 'error', 'error': 'Missing MUNCH_HEADERS_EMPLOYEE_ID'}
+        if not munch_watch_system_organisation_id:
+            return {'api_status': 'error', 'error': 'Missing MUNCH_WATCH_SYSTEM_ORGANISATION_ID'}
+        if not munch_retrieve_users_payload_id:
+            return {'api_status': 'error', 'error': 'Missing MUNCH_RETRIEVE_USERS_PAYLOAD_ID'}
+
         try:
             # Use the working POST endpoint instead of GET
             munch_headers = {
@@ -101,12 +112,12 @@ class LiveSystemMonitor:
                 'Munch-Platform': 'cloud.munch.portal',
                 'Munch-Timezone': 'Africa/Johannesburg',
                 'Munch-Version': '2.20.1',
-                'Munch-Employee': '28c5e780-3707-11ec-bb31-dde416ab9f61',
-                'Munch-Organisation': '1476d7a5-b7b2-4b18-85c6-33730cf37a12'
+                'Munch-Employee': munch_employee_id,
+                'Munch-Organisation': munch_watch_system_organisation_id
             }
             
             payload = {
-                "id": "3e92a480-5f21-11ec-b43f-dde416ab9f61",
+                "id": munch_retrieve_users_payload_id,
                 "timezone": "Africa/Johannesburg"
             }
             

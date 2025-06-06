@@ -9,6 +9,21 @@ class handler(BaseHTTPRequestHandler):
     def do_POST(self):
         """Handle POST requests for Loopy webhooks"""
         try:
+            # Internal API Authentication
+            internal_auth_token = os.getenv('INTERNAL_API_AUTH_TOKEN')
+            if internal_auth_token:  # Only authenticate if token is configured
+                auth_header = self.headers.get('X-Internal-Auth-Token')
+                if not auth_header or auth_header != internal_auth_token:
+                    self.send_response(401)
+                    self.send_header('Content-type', 'application/json')
+                    # No Access-Control-Allow-Origin for 401 response
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        'status': 'error',
+                        'message': 'Unauthorized'
+                    }).encode())
+                    return
+
             # Get content length
             content_length = int(self.headers.get('Content-Length', 0))
             
@@ -75,9 +90,9 @@ class handler(BaseHTTPRequestHandler):
             # Send successful response
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
-            self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-            self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+            # No Access-Control-Allow-Origin for POST success response
+            # No Access-Control-Allow-Methods for POST success response
+            # No Access-Control-Allow-Headers for POST success response
             self.end_headers()
             
             self.wfile.write(json.dumps(response).encode())
@@ -86,7 +101,7 @@ class handler(BaseHTTPRequestHandler):
             # Send error response
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
-            self.send_header('Access-Control-Allow-Origin', '*')
+            # No Access-Control-Allow-Origin for 500 response
             self.end_headers()
             
             error_response = {
@@ -123,5 +138,6 @@ class handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
         self.send_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        # Ensure X-Internal-Auth-Token is allowed if you plan to use it with GET/OPTIONS too
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, X-Internal-Auth-Token')
         self.end_headers() 

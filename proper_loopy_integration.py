@@ -127,6 +127,9 @@ def find_munch_customer_by_loopy_data(email, phone):
     munch_api_key = os.getenv('MUNCH_API_KEY')
     munch_org_id = os.getenv('MUNCH_ORG_ID')
     munch_base_url = 'https://api.munch.cloud/api'
+    munch_employee_id = os.getenv('MUNCH_HEADERS_EMPLOYEE_ID')
+    if not munch_employee_id:
+        raise ValueError("❌ Missing MUNCH_HEADERS_EMPLOYEE_ID environment variable")
     
     headers = {
         'Authorization': f'Bearer {munch_api_key}',
@@ -136,17 +139,20 @@ def find_munch_customer_by_loopy_data(email, phone):
         'Munch-Platform': 'cloud.munch.portal',
         'Munch-Timezone': 'Africa/Johannesburg',
         'Munch-Version': '2.20.1',
-        'Munch-Employee': '28c5e780-3707-11ec-bb31-dde416ab9f61',
+        'Munch-Employee': munch_employee_id,
         'Munch-Organisation': munch_org_id
     }
     
     try:
+        munch_retrieve_users_payload_id = os.getenv('MUNCH_RETRIEVE_USERS_PAYLOAD_ID')
+        if not munch_retrieve_users_payload_id:
+            raise ValueError("❌ Missing MUNCH_RETRIEVE_USERS_PAYLOAD_ID environment variable")
         # Search for customer by email in Munch
         search_response = requests.post(
             f'{munch_base_url}/account/retrieve-users',
             headers=headers,
             json={
-                "id": "3e92a480-5f21-11ec-b43f-dde416ab9f61",
+                "id": munch_retrieve_users_payload_id,
                 "timezone": "Africa/Johannesburg"
             },
             timeout=10
